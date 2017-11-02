@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>FastTracker for CTA</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.98.0/css/materialize.min.css">
+
+    <!-- Favicons -->
+    <meta name="theme-color" content="#3f51b5">
+
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="FastTracker for CTA">
+
+    <style>
+        #main {
+            margin-top: 40px;
+        }
+        
+        body {
+            display: flex;
+            min-height: 100vh;
+            flex-direction: column;
+            background-color: #eee;
+        }
+        
+        main {
+            flex: 1 0 auto;
+        }
+        
+        #staggered-test>li {
+            opacity: 0;
+        }
+        
+        #loader {
+            display: none;
+        }
+        
+        .progress {
+            background-color: #e0e0e0;
+        }
+        
+        .progress .indeterminate {
+            background-color: #3f51b5;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- -->
+    <div id="custom_input" class="modal bottom-sheet">
+        <div class="modal-content">
+            <h4>Custom Stop</h4>
+            <p>Enter a stop number to get the arrival times for that stop.</p>
+            <div class="row">
+                <div class="input-field col s5"> <input id="stop_num" type="text"> <label for="stop_num">Stop Number</label> </div>
+                <div class="input-field col s7"> <button class="btn waves-effect waves-light indigo" id="submit_custom"><i class="material-icons">search</i></button> </div>
+            </div>
+        </div>
+        <div class="modal-footer"> <a href="#" class="modal-action modal-close waves-effect waves-dark btn-flat">Close</a> </div>
+    </div>
+    <!-- -->
+    <header>
+        <nav class="indigo darken-1">
+            <div class="nav-wrapper"> <span class="brand-logo center" id="logo-title">FastTracker <span style="font-size: 10px">for CTA</span></span> </div>
+        </nav>
+    </header>
+    <main>
+        <div class="container">
+            <div class="right" id="custom_input"> <a class="#" href="#custom_input"><i class="material-icons">search</i></a> </div>
+            <h4 class="center">Estimated Times</h4>
+            <div class="row">
+                <div class="input-field col s12 m6"> <select id="route_sel">
+      <option value="" disabled selected>Choose a Route</option>
+      <option value="49">49/49X - Western</option>
+      <option value="152">152 - Addison</option>
+    </select> <label>Route</label> </div>
+                <div class="input-field col s12 m6"> <select disabled id="dir_sel">
+      <option value="" disabled selected>Choose a Direction</option>
+      <option value="1">West</option>
+      <option value="2">East</option>
+    </select> <label>Direction</label> </div>
+            </div>
+            <!-- -->
+            <div class="card-panel">
+                <div id="info_empty_panel" class="center"> <span>Select a Route and Direction.</span> </div>
+                <div id="info_panel" style="display: none">
+                    <div class="row">
+                        <div class="col s12 m4">
+                            <h3>Route <span id="route_num">152</span></h3>
+                        </div>
+                        <div class="col s12 m8">
+                            <p class="flow-text right">Western & Addison (<span id="route_dir"></span>)</p>
+                        </div>
+                    </div>
+                </div>
+                <div id="info_custom_panel" class="center"> </div>
+            </div>
+            <hr>
+            <div class="progress" id="loader">
+                <div class="indeterminate"></div>
+            </div>
+        </div>
+        <div class="container" id="main" style="display: none"> </div>
+    </main>
+    <script src="https://code.jquery.com/jquery-3.1.1.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.98.0/js/materialize.min.js"></script>
+    <script>
+        var current_route;
+        var current_direction;
+        var current_stop;
+        var pingBusTask = null;
+
+        function pingBus(stop) {
+            $("#info_empty_panel").hide();
+
+            if (stop) {
+                $("#info_panel").hide();
+                current_stop = stop;
+            }
+            else {
+                $("#info_custom_panel").hide();
+                $("#info_panel").fadeIn();
+            }
+            $("#loader").show();
+            $("#main").fadeOut().empty();
+            var apiPassThruUrl = "https://polar-garden-75406.herokuapp.com/apiPassThru.php";
+            var apiEndpoint = "http://ctabustracker.com/bustime/api/v2/getpredictions";
+            //http://ctabustracker.com/bustime/api/v2/getpredictions?key=rg6j7LGHPKbjTDUuKcp4g7ZKb&stpid=12527&format=json
+            /*
+            
+                152 WEST [] 12569
+                152 EAST [] 12527
+            
+                49 NORTH [] 8417
+                49 SOUTH [] 8195
+            
+                */
+            $.ajax({
+                url: apiPassThruUrl,
+                dataType: "json",
+                method: 'GET',
+                data: {
+                    "apiEndpoint": apiEndpoint,
+                    "key": "rg6j7LGHPKbjTDUuKcp4g7ZKb",
+                    "format": "json",
+                    "stpid": current_stop
+                }
+            }).done(function(data) {
+                console.log(data);
+                if (data["bustime-response"]["error"]) {
+                    console.log("Error: " + data["bustime-response"]["error"][0].msg);
+                    if (data["bustime-response"]["error"][0].msg == "No arrival times") {
+                        $("#main").append('<div class="card-panel red white-text center"> <span>No arrival times found.</span> </div>');
+                    }
+                    else if (data["bustime-response"]["error"][0].msg == "No service scheduled") {
+                        $("#main").append('<div class="card-panel red white-text center"> <span>No buses are scheduled for this stop.</span> </div>');
+                    }
+                    else if (data["bustime-response"]["error"][0].msg == "No data found for parameter") {
+                        $("#main").append('<div class="card-panel red white-text center"> <span>That Stop ID couldn\'t be found!</span> </div>');
+                    }
+                    else {
+                        $("#main").append('<div class="card-panel red white-text center"> <span>Some unknown error occured.</span> </div>');
+                    }
+                }
+                else {
+                    if (stop) {
+                        $("#info_custom_panel").html("<span><h3>Stop #" + current_stop + "</h3></span>");
+                    }
+                    $.each(data["bustime-response"]["prd"], function(k, v) {
+                        console.log(k);
+                        console.log(v);
+                        var disTime;
+                        if (v.prdctdn == "DUE") {
+                            $("#main").append(
+                                '<div class="card-panel green white-text"> <div class="row" style="margin:0"> <div class="col s12 m6"><h5><span class="est_time">Approaching</span></h5></div> <div class="col s12 m6 right-align"><p><span class="bus_id">Route <b>' +
+                                v.rt + '</b></span><br><span class="bus_dest">To ' + v.des + '</span></p></div> </div> </div>');
+                        }
+                        else if (v.prdctdn == "DLY") {
+                            $("#main").append(
+                                '<div class="card-panel red white-text"> <div class="row" style="margin:0"> <div class="col s12 m6"><h5><span class="est_time">Delayed</span></h5></div> <div class="col s12 m6 right-align"><p><span class="bus_id">Route <b>' +
+                                v.rt + '</b></span><br><span class="bus_dest">To ' + v.des + '</span></p></div> </div> </div>');
+                        }
+                        else {
+                            $("#main").append('<div class="card-panel"> <div class="row" style="margin:0"> <div class="col s12 m6"><h5><span class="est_time">' + v.prdctdn +
+                                ' minutes</span></h5></div> <div class="col s12 m6 right-align"><p><span class="bus_id">Route <b>' + v.rt + '</b></span><br><span class="bus_dest">To ' + v.des +
+                                '</span></p></div> </div> </div>');
+                        }
+                    });
+                    if (stop) {
+                        $("#info_empty_panel").hide();
+                        $("#info_custom_panel").fadeIn();
+                    }
+                }
+                $("#loader").hide();
+                $("#main").fadeIn();
+            });
+        }
+        $("#route_sel").on("change", function() {
+            current_route = $('#route_sel').val();
+            console.log("SELROU " + current_route);
+            if (current_route == "49") {
+                $("#dir_sel").html('<option value="" disabled selected>Choose a Direction</option> <option value="Northbound">Northbound</option> <option value="Southbound">Southbound</option>');
+            }
+            else {
+                $("#dir_sel").html('<option value="" disabled selected>Choose a Direction</option> <option value="Westbound">Westbound</option> <option value="Eastbound">Eastbound</option>');
+            }
+            $("#dir_sel").prop("disabled", false);
+            $('select').material_select();
+        });
+        $("#dir_sel").on("change", function() {
+            clearInterval(pingBusTask);
+            current_direction = $('#dir_sel').val();
+            console.log("SELDIR " + current_direction);
+            /*
+            
+                152 WEST [] 12569
+                152 EAST [] 12527
+            
+                49 NORTH [] 8417
+                49 SOUTH [] 8195
+            
+                */
+            if (current_route == "49" && current_direction == "Northbound") {
+                current_stop = 8417;
+            }
+            else if (current_route == "49" && current_direction == "Southbound") {
+                current_stop = 8195;
+            }
+            else if (current_route == "152" && current_direction == "Westbound") {
+                current_stop = 12569;
+            }
+            else if (current_route == "152" && current_direction == "Eastbound") {
+                current_stop = 12527;
+            }
+            $("#route_num").text(current_route);
+            $("#route_dir").text(current_direction);
+            pingBus();
+            pingBusTask = setInterval(function() {
+                pingBus();
+            }, 30000)
+        });
+        $("#submit_custom").click(function() {
+            var stop = $("#stop_num").val();
+            if (stop == "") {
+                return;
+            }
+            else {
+                clearInterval(pingBusTask);
+                $("#custom_input").modal("close");
+
+
+                pingBus(stop);
+                pingBusTask = setInterval(function() {
+                    pingBus(stop);
+                }, 30000)
+            }
+        });
+        $(function() {
+            $('select').material_select();
+            $('.modal').modal();
+        });
+    </script>
+</body>
+
+</html>
