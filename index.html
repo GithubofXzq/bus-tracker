@@ -1,270 +1,447 @@
 <!DOCTYPE html>
 <html>
 
-<head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>FastTracker for CTA</title>
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.98.0/css/materialize.min.css">
-
-    <!-- Favicons -->
-    <meta name="theme-color" content="#3f51b5">
-
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="FastTracker for CTA">
-
+  <head>
+    <title>CTA Bus Tracker</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.teal-indigo.min.css" />
+    <script src="getmdl-select.min.js"></script>
+    <link rel="stylesheet" href="getmdl-select.min.css">
+    <script defer src="https://code.getmdl.io/1.3.0/material.min.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css?family=Inconsolata" rel="stylesheet">
     <style>
-        #main {
-            margin-top: 40px;
+      body,
+      h1,
+      h2,
+      h3,
+      h4,
+      h5,
+      h6 {
+        font-family: 'Inconsolata', monospace;
+      }
+
+      .demo-layout-waterfall .mdl-layout__header-row .mdl-navigation__link:last-of-type {
+        padding-right: 0;
+      }
+
+      .mdl-layout-title {
+        font-family: 'Inconsolata', monospace;
+        font-size: 2em;
+      }
+
+      .demo-card-square.mdl-card {
+        width: 320px;
+        height: 320px;
+      }
+
+      .template {
+        display: none;
+      }
+
+      .records {
+        margin: 20px;
+        float: left;
+      }
+
+      @media screen and (max-width: 599px) {
+        .records {
+          width: 90%;
         }
-        
-        body {
-            display: flex;
-            min-height: 100vh;
-            flex-direction: column;
-            background-color: #eee;
+      }
+
+      @media screen and (max-width: 737px) and (min-width: 600px) {
+        .records {
+          width: 43%;
+          float: left;
         }
-        
-        main {
-            flex: 1 0 auto;
+      }
+
+      @media screen and (max-width: 1399px) and (min-width: 738px) {
+        .records {
+          width: 26%;
+          float: left;
         }
-        
-        #staggered-test>li {
-            opacity: 0;
+      }
+
+      .mdl-card__title {
+        padding: 20px;
+      }
+
+      header {
+        padding: 50px;
+      }
+
+      body {
+        background-color: #dcdcdc;
+      }
+
+      .predictions {
+        float: left;
+        margin: 10px;
+        width: 97%;
+      }
+
+      @media screen and (min-width: 1400px) {
+        .predictions {
+          width: 23%;
         }
-        
-        #loader {
-            display: none;
-        }
-        
-        .progress {
-            background-color: #e0e0e0;
-        }
-        
-        .progress .indeterminate {
-            background-color: #3f51b5;
-        }
+      }
+
+      .predictions {
+        display: none;
+      }
+
+      #loading {
+        width: 90%;
+        height: 7px;
+        margin: 0 auto;
+        margin-top: 10px;
+      }
+      .mdl-textfield {
+        width: 90%;
+      }
+      .routeRecords {
+        width: 90%;
+        margin: auto;
+        margin-bottom: 10px;
+        margin-top: 10px;
+      }
+      #scrollBackUp {
+        position: absolute;
+        bottom: 0;
+      }
     </style>
-</head>
+    <!-- Add to homescreen for Chrome on Android -->
+    <meta name="mobile-web-app-capable" content="yes">
+    <link rel="icon" sizes="192x192" href="android-desktop.png">
+    <link rel="manifest" href="./manifest.json">
 
-<body>
-    <!-- -->
-    <div id="custom_input" class="modal bottom-sheet">
-        <div class="modal-content">
-            <h4>Custom Stop</h4>
-            <p>Enter a stop number to get the arrival times for that stop.</p>
-            <div class="row">
-                <div class="input-field col s5"> <input id="stop_num" type="text"> <label for="stop_num">Stop Number</label> </div>
-                <div class="input-field col s7"> <button class="btn waves-effect waves-light indigo" id="submit_custom"><i class="material-icons">search</i></button> </div>
-            </div>
+    <!-- Add to homescreen for Safari on iOS -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-title" content="CTA Bus">
+    <link rel="apple-touch-icon-precomposed" href="ios-desktop.png">
+    <!--Dexie-->
+    <script src="https://unpkg.com/dexie@latest/dist/dexie.js"></script>
+    <!--Favicon-->
+    <link rel="shortcut icon" href="favicon.png">
+    <!--jQuery-->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+    <script src='jquery-p2r-master/jquery.p2r.min.js' type='text/javascript' defer></script>
+  </head>
+
+  <body>
+    <!-- Simple header with fixed tabs. -->
+    <div class="mdl-layout mdl-js-layout mdl-layout--fixed-header mdl-layout--fixed-tabs">
+      <header class="mdl-layout__header">
+        <div class="mdl-layout__header-row">
+          <!-- Title -->
+          <span class="mdl-layout-title">CTA Bus Tracker</span>
         </div>
-        <div class="modal-footer"> <a href="#" class="modal-action modal-close waves-effect waves-dark btn-flat">Close</a> </div>
-    </div>
-    <!-- -->
-    <header>
-        <nav class="indigo darken-1">
-            <div class="nav-wrapper"> <span class="brand-logo center" id="logo-title">FastTracker <span style="font-size: 10px">for CTA</span></span> </div>
+        <!-- Tabs -->
+        <div class="mdl-layout__tab-bar mdl-js-ripple-effect">
+          <a href="#fixed-tab-1" class="mdl-layout__tab is-active">Bus Predictions</a>
+          <a href="#fixed-tab-2" class="mdl-layout__tab">Manage Routes</a>
+          <a href="#fixed-tab-3" class="mdl-layout__tab">Add Routes</a>
+        </div>
+      </header>
+      <div class="mdl-layout__drawer">
+        <span class="mdl-layout-title">Title</span>
+        <nav class="mdl-navigation">
+          <a class="mdl-navigation__link">Bus Predictions</a>
+          <a class="mdl-navigation__link">Manage Routes</a>
+          <a class="mdl-navigation__link">Add Routes</a>
         </nav>
-    </header>
-    <main>
-        <div class="container">
-            <div class="right" id="custom_input"> <a class="#" href="#custom_input"><i class="material-icons">search</i></a> </div>
-            <h4 class="center">Estimated Times</h4>
-            <div class="row">
-                <div class="input-field col s12 m6"> <select id="route_sel">
-      <option value="" disabled selected>Choose a Route</option>
-      <option value="49">49/49X - Western</option>
-      <option value="152">152 - Addison</option>
-    </select> <label>Route</label> </div>
-                <div class="input-field col s12 m6"> <select disabled id="dir_sel">
-      <option value="" disabled selected>Choose a Direction</option>
-      <option value="1">West</option>
-      <option value="2">East</option>
-    </select> <label>Direction</label> </div>
-            </div>
-            <!-- -->
-            <div class="card-panel">
-                <div id="info_empty_panel" class="center"> <span>Select a Route and Direction.</span> </div>
-                <div id="info_panel" style="display: none">
-                    <div class="row">
-                        <div class="col s12 m4">
-                            <h3>Route <span id="route_num">152</span></h3>
-                        </div>
-                        <div class="col s12 m8">
-                            <p class="flow-text right">Western & Addison (<span id="route_dir"></span>)</p>
-                        </div>
-                    </div>
+      </div>
+      <main class="mdl-layout__content">
+        <section class="mdl-layout__tab-panel is-active" id="fixed-tab-1">
+          <div class="page-content">
+            <!-- MDL Progress Bar with Indeterminate Progress -->
+            <div class='mdl-layout-spacer'></div>
+            <div class="mdl-progress mdl-js-progress mdl-progress__indeterminate" id='loading'></div>
+            <div id='main' class="page-content">
+              <div id='prdRecords'>
+
+              </div>
+              <div class="mdl-card mdl-shadow--4dp template" id='predictionTemplate'>
+                <div class='mdl-card__title'>
+                  <h3 class='prdctdn'></h3>
                 </div>
-                <div id="info_custom_panel" class="center"> </div>
+                <div class="mdl-card__supporting-text">
+                  Stop - <span class='stpnm'></span><br> Distance - <span class='dstp'></span> feet<br> Destination - <span class='des'></span><br> Vehicle - <span class='vid'></span>
+                </div>
+              </div>
             </div>
-            <hr>
-            <div class="progress" id="loader">
-                <div class="indeterminate"></div>
+          </div>
+        </section>
+
+        <section class="mdl-layout__tab-panel" id="fixed-tab-2">
+          <div class="page-content">
+
+            <div class="demo-card-wide mdl-card mdl-shadow--2dp template" id='routeTemplate'>
+              <div class="mdl-card__title buttonTitle">
+                <h2 class="mdl-card__title-text"><span class='rtnm'></span> - <span class='dir'></span> - <span class='stpnm'></span></h2>
+              </div>
+              <div class="mdl-card__supporting-text rtbody">
+                Route #<span class='rt'></span>
+              </div>
+              <div class="mdl-card__actions mdl-card--border">
+                <!-- Mini FAB button -->
+                <button class="mdl-button mdl-js-button mdl-button--fab mdl-button--mini-fab deleteRouteBTN">
+                  <i class="material-icons">delete</i>
+                </button>
+              </div>
             </div>
-        </div>
-        <div class="container" id="main" style="display: none"> </div>
-    </main>
-    <script src="https://code.jquery.com/jquery-3.1.1.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.98.0/js/materialize.min.js"></script>
+
+            <div id='routeRecords'>
+
+            </div>
+
+          </div>
+        </section>
+
+        <section class="mdl-layout__tab-panel" id="fixed-tab-3">
+          <div class="page-content">
+            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label getmdl-select dropdown">
+              <input class="mdl-textfield__input" value='' type="text" id="routeInput" readonly tabIndex="-1" />
+              <label class="mdl-textfield__label" for="routeInput">Route</label>
+              <ul class="mdl-menu mdl-menu--bottom-left mdl-js-menu" for="routeInput" id='routeInputUL'>
+
+              </ul>
+            </div>
+            <br>
+            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label getmdl-select dropdown">
+              <input class="mdl-textfield__input" value='' type="text" id="directionInput" readonly tabIndex="-1" />
+              <label class="mdl-textfield__label" for="directionInput">Direction</label>
+              <ul class="mdl-menu mdl-menu--bottom-left mdl-js-menu" for="directionInput" id='directionInputUL'>
+
+              </ul>
+            </div>
+            <br>
+            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label getmdl-select dropdown">
+              <input class="mdl-textfield__input" value='' type="text" id="stopInput" readonly tabIndex="-1" />
+              <label class="mdl-textfield__label" for="stopInput">Stop</label>
+              <ul class="mdl-menu mdl-menu--bottom-left mdl-js-menu" for="stopInput" id='stopInputUL'>
+
+              </ul>
+            </div>
+            <br>
+            <!-- Accent-colored raised button with ripple -->
+            <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" id='addRouteBTN' disabled>
+              Save
+            </button>
+          </div>
+          <h6 id='scrollBackUp'>Scroll Back up</h6>
+        </section>
+      </main>
+    </div>
     <script>
-        var current_route;
-        var current_direction;
-        var current_stop;
-        var pingBusTask = null;
+      $(function() {
+        //Some Variable Defining
+        var apiPassThruUrl = "https://polar-garden-75406.herokuapp.com/apiPassThru.php";
+        var apiEndpoint = "http://www.ctabustracker.com/bustime/api/v2/getpredictions";
+        var selectedRoute;
+        var selectedDir;
+        var selectedStop;
+        var selectedStpnm;
+        var i = 0;
+        var clone;
+        var ctdn;
+        var stpids = new Array();
 
-        function pingBus(stop) {
-            $("#info_empty_panel").hide();
+        // Defining Dexie
+        var db = new Dexie("CTABusTracker");
+        db.version(1).stores({
+            stops: '++id, stpid, rt, dir, stpnm, rtnm'
+        });
 
-            if (stop) {
-                $("#info_panel").hide();
-                current_stop = stop;
+        //Defining Functions to get rid of repetitive code
+        //Prediction AJAX and Display Predictions
+        function displayPredictions() {
+          $('#prdRecords').empty()
+          $('#loading').show()
+          i = 0;
+          if (typeof stpids == 'string') {
+            stpids = stpids.split(',');
+          }
+          db.stops.each(function(item, cursor) {
+            console.log(item.stpid)
+            stpids.push(item.stpid)
+          }).then(function() {
+            console.log(stpids)
+            while (i < stpids.length) {
+            stpids = stpids.toString().replace(' ', "")
+            i++
+          }
+          console.log(stpids)
+          $.ajax({
+            url: apiPassThruUrl,
+            dataType: "json",
+            method: 'GET',
+            data: {
+              "apiEndpoint": apiEndpoint,
+              "key": "RNdTXe2M5DYFx7G2dKKhSfJ27",
+              "format": "json",
+              'stpid': stpids
             }
-            else {
-                $("#info_custom_panel").hide();
-                $("#info_panel").fadeIn();
-            }
-            $("#loader").show();
-            $("#main").fadeOut().empty();
-            var apiPassThruUrl = "https://polar-garden-75406.herokuapp.com/apiPassThru.php";
-            var apiEndpoint = "http://ctabustracker.com/bustime/api/v2/getpredictions";
-            //http://ctabustracker.com/bustime/api/v2/getpredictions?key=rg6j7LGHPKbjTDUuKcp4g7ZKb&stpid=12527&format=json
-            /*
-            
-                152 WEST [] 12569
-                152 EAST [] 12527
-            
-                49 NORTH [] 8417
-                49 SOUTH [] 8195
-            
-                */
-            $.ajax({
-                url: apiPassThruUrl,
-                dataType: "json",
-                method: 'GET',
-                data: {
-                    "apiEndpoint": apiEndpoint,
-                    "key": "rg6j7LGHPKbjTDUuKcp4g7ZKb",
-                    "format": "json",
-                    "stpid": current_stop
-                }
-            }).done(function(data) {
-                console.log(data);
-                if (data["bustime-response"]["error"]) {
-                    console.log("Error: " + data["bustime-response"]["error"][0].msg);
-                    if (data["bustime-response"]["error"][0].msg == "No arrival times") {
-                        $("#main").append('<div class="card-panel red white-text center"> <span>No arrival times found.</span> </div>');
-                    }
-                    else if (data["bustime-response"]["error"][0].msg == "No service scheduled") {
-                        $("#main").append('<div class="card-panel red white-text center"> <span>No buses are scheduled for this stop.</span> </div>');
-                    }
-                    else if (data["bustime-response"]["error"][0].msg == "No data found for parameter") {
-                        $("#main").append('<div class="card-panel red white-text center"> <span>That Stop ID couldn\'t be found!</span> </div>');
-                    }
-                    else {
-                        $("#main").append('<div class="card-panel red white-text center"> <span>Some unknown error occured.</span> </div>');
-                    }
-                }
-                else {
-                    if (stop) {
-                        $("#info_custom_panel").html("<span><h3>Stop #" + current_stop + "</h3></span>");
-                    }
-                    $.each(data["bustime-response"]["prd"], function(k, v) {
-                        console.log(k);
-                        console.log(v);
-                        var disTime;
-                        if (v.prdctdn == "DUE") {
-                            $("#main").append(
-                                '<div class="card-panel green white-text"> <div class="row" style="margin:0"> <div class="col s12 m6"><h5><span class="est_time">Approaching</span></h5></div> <div class="col s12 m6 right-align"><p><span class="bus_id">Route <b>' +
-                                v.rt + '</b></span><br><span class="bus_dest">To ' + v.des + '</span></p></div> </div> </div>');
-                        }
-                        else if (v.prdctdn == "DLY") {
-                            $("#main").append(
-                                '<div class="card-panel red white-text"> <div class="row" style="margin:0"> <div class="col s12 m6"><h5><span class="est_time">Delayed</span></h5></div> <div class="col s12 m6 right-align"><p><span class="bus_id">Route <b>' +
-                                v.rt + '</b></span><br><span class="bus_dest">To ' + v.des + '</span></p></div> </div> </div>');
-                        }
-                        else {
-                            $("#main").append('<div class="card-panel"> <div class="row" style="margin:0"> <div class="col s12 m6"><h5><span class="est_time">' + v.prdctdn +
-                                ' minutes</span></h5></div> <div class="col s12 m6 right-align"><p><span class="bus_id">Route <b>' + v.rt + '</b></span><br><span class="bus_dest">To ' + v.des +
-                                '</span></p></div> </div> </div>');
-                        }
-                    });
-                    if (stop) {
-                        $("#info_empty_panel").hide();
-                        $("#info_custom_panel").fadeIn();
-                    }
-                }
-                $("#loader").hide();
-                $("#main").fadeIn();
-            });
+          }).done(function(data) {
+            console.log(data);
+            $('#loading').hide()
+            $('.predictions').css('display', 'block')
+            $.each(data["bustime-response"]["prd"], function(i, v) {
+              clone = $("#predictionTemplate").clone();
+              clone.attr('id', null)
+              clone.removeClass('template')
+              clone.addClass('records')
+              clone.find(".rtdir").text(v.rt + ' - ' + v.rtdir)
+              clone.find('.stpnm').text(v.stpnm)
+              if (v.prdctdn == 'DUE') {
+                ctdn = 'Due';
+              }
+              else if (v.prdctdn == 'DLY') {
+                ctdn = 'Delay'
+              }
+              else {
+                ctdn = v.prdctdn + ' minutes'
+              }
+              clone.find(".prdctdn").text(ctdn);
+              clone.find(".dstp").text(v.dstp)
+              clone.find(".des").text(v.des);
+              clone.find('.vid').text(v.vid);
+              if ($('#' + v.stpid).length == 0) {
+                $('#prdRecords').append('<div id=' + v.stpid + ' class="records"><h2>' + v.rt + ' - ' + v.stpnm + ' - ' + v.rtdir + '</h2></div>')
+              }
+              $('#' + v.stpid).append(clone)
+            })
+          });
+          })
         }
-        $("#route_sel").on("change", function() {
-            current_route = $('#route_sel').val();
-            console.log("SELROU " + current_route);
-            if (current_route == "49") {
-                $("#dir_sel").html('<option value="" disabled selected>Choose a Direction</option> <option value="Northbound">Northbound</option> <option value="Southbound">Southbound</option>');
-            }
-            else {
-                $("#dir_sel").html('<option value="" disabled selected>Choose a Direction</option> <option value="Westbound">Westbound</option> <option value="Eastbound">Eastbound</option>');
-            }
-            $("#dir_sel").prop("disabled", false);
-            $('select').material_select();
-        });
-        $("#dir_sel").on("change", function() {
-            clearInterval(pingBusTask);
-            current_direction = $('#dir_sel').val();
-            console.log("SELDIR " + current_direction);
-            /*
-            
-                152 WEST [] 12569
-                152 EAST [] 12527
-            
-                49 NORTH [] 8417
-                49 SOUTH [] 8195
-            
-                */
-            if (current_route == "49" && current_direction == "Northbound") {
-                current_stop = 8417;
-            }
-            else if (current_route == "49" && current_direction == "Southbound") {
-                current_stop = 8195;
-            }
-            else if (current_route == "152" && current_direction == "Westbound") {
-                current_stop = 12569;
-            }
-            else if (current_route == "152" && current_direction == "Eastbound") {
-                current_stop = 12527;
-            }
-            $("#route_num").text(current_route);
-            $("#route_dir").text(current_direction);
-            pingBus();
-            pingBusTask = setInterval(function() {
-                pingBus();
-            }, 30000)
-        });
-        $("#submit_custom").click(function() {
-            var stop = $("#stop_num").val();
-            if (stop == "") {
-                return;
-            }
-            else {
-                clearInterval(pingBusTask);
-                $("#custom_input").modal("close");
+        //Manage Routes Script
+        function manageDeleteRoutes() {
+          $('#routeRecords').empty()
+          db.stops.each(function(stop) {
+            clone = $("#routeTemplate").clone();
+            clone.attr('id', stop.id)
+            clone.attr('value', stop.id)
+            clone.removeClass('template')
+            clone.addClass('routeRecords')
+            clone.find('.dir').text(stop.dir)
+            clone.find('.rtnm').text(stop.rtnm)
+            clone.find(".stpnm").text(stop.stpnm)
+            clone.find('.rt').text(stop.rt)
+            $("#routeRecords").append(clone);
+          }).then(function() {
+              $('.deleteRouteBTN').on('click', function() {
+              $(this).parents().eq(1).remove()
+              stopToDelete = $(this).parents().eq(1).attr('id')
+              console.log(stopToDelete)
+              db.stops.delete(parseInt(stopToDelete)).then(function(x) {
+                displayPredictions()
+              })
+            })
+          })
+        }
 
-
-                pingBus(stop);
-                pingBusTask = setInterval(function() {
-                    pingBus(stop);
-                }, 30000)
+        $("#fixed-tab-1").pullToRefresh();
+        $('#fixed-tab-1').on('refresh.pulltorefresh', function(element, y){
+          displayPredictions()
+        })
+        $("#fixed-tab-2").pullToRefresh();
+        $('#fixed-tab-2').on('refresh.pulltorefresh', function(element, y){
+          manageDeleteRoutes()
+        })
+        //Populating Routes
+          $.ajax({
+            url: apiPassThruUrl,
+            dataType: "json",
+            method: 'GET',
+            data: {
+              "apiEndpoint": "http://www.ctabustracker.com/bustime/api/v2/getroutes",
+              "key": "RNdTXe2M5DYFx7G2dKKhSfJ27",
+              "format": "json"
             }
-        });
-        $(function() {
-            $('select').material_select();
-            $('.modal').modal();
-        });
+          }).done(function(routeData) {
+            console.log(routeData)
+            $.each(routeData["bustime-response"]["routes"], function(i,v){
+              //console.log(v.rtnm)
+              $('#routeInputUL').append('<li class="mdl-menu__item" value=' + v.rt + '>' + v.rt + ' - ' + v.rtnm + '</li>')
+            })
+            getmdlSelect.init('.getmdl-select')
+          })
+          //Jump to top of page when lose focus
+          $('.dropdown').on('focusout', function() {
+            console.log('focus out fired')
+            $("html, body").animate({scrollTop: 0}, 600);
+          })
+          //Populating Directions
+          $('#routeInput').on('change', function() {
+            selectedRoute = $('#routeInput').val().split(" ")
+            $('#fixed-tab-3').animate({ scrollTop: 0 }, 'fast');
+            console.log(selectedRoute[0])
+            $.ajax({
+              url: apiPassThruUrl,
+              dataType: "json",
+              method: 'GET',
+              data: {
+                "apiEndpoint": "http://www.ctabustracker.com/bustime/api/v2/getdirections",
+                "key": "RNdTXe2M5DYFx7G2dKKhSfJ27",
+                "format": "json",
+                "rt": selectedRoute[0]
+              }
+            }).done(function(directionData) {
+              console.log(directionData)
+              $('#directionInputUL').empty()
+              $.each(directionData["bustime-response"]["directions"], function(i,v){
+                $('#directionInputUL').append('<li class="mdl-menu__item" value=' + v.dir + '>' + v.dir + '</li>')
+              })
+              getmdlSelect.init('.getmdl-select')
+            })
+          })
+          //Populating Stops
+          $('#directionInput').on('change', function(e) {
+            selectedDir = $('#directionInput').val()
+            $('#fixed-tab-3').animate({ scrollTop: 0 }, 'fast');
+            console.log(selectedDir)
+            $.ajax({
+              url: apiPassThruUrl,
+              dataType: "json",
+              method: 'GET',
+              data: {
+                "apiEndpoint": "http://www.ctabustracker.com/bustime/api/v2/getstops",
+                "key": "RNdTXe2M5DYFx7G2dKKhSfJ27",
+                "format": "json",
+                "rt": selectedRoute[0],
+                "dir": selectedDir
+              }
+            }).done(function(stopData) {
+              console.log(stopData)
+              $('#stopInputUL').empty()
+              $.each(stopData["bustime-response"]["stops"], function(i,v){
+                $('#stopInputUL').append('<li class="mdl-menu__item" value=' + v.stpid + '>' + v.stpid + ' - ' + v.stpnm + '</li>')
+              })
+              getmdlSelect.init('.getmdl-select')
+            })
+          })
+          //Save Button
+          $('#stopInput').on('change', function(e) {
+            $('#addRouteBTN').removeAttr('disabled')
+            $('#fixed-tab-3').animate({ scrollTop: 0 }, 'fast');
+          })
+          $('#addRouteBTN').on('click', function(e){
+            selectedRoute = $('#routeInput').val().split("-")
+            selectedDir = $('#directionInput').val()
+            selectedStop = $('#stopInput').val().split("-")
+            $('#addRouteBTN').attr('disabled', true)
+            db.stops.add({stpid:selectedStop[0], rt: selectedRoute[0], dir:selectedDir, stpnm: selectedStop[1], rtnm:selectedRoute[1]}).then(function(){
+              displayPredictions()
+              manageDeleteRoutes()
+            })
+          })
+        displayPredictions()
+        manageDeleteRoutes()
+      })
     </script>
-</body>
+  </body>
 
 </html>
