@@ -19,13 +19,24 @@
     body {
       background-color: #eee;
     }
+  
     #predictions-template {
       display: none;
     }
-  .route-prediction-time {
-    font-size: 24px;
-    font-weight: 600;
-  }
+  
+    .route-prediction-time {
+      font-size: 24px;
+      font-weight: 600;
+    }
+  
+    .loader,
+    .loader:before {
+      height: 6px;
+    }
+  
+    #main {
+      margin-top: 20px;
+    }
   </style>
 
 </head>
@@ -61,7 +72,7 @@
     </div>
   </div>
 
-  <nav class="navbar navbar-dark bg-primary mb-4">
+  <nav class="navbar navbar-dark bg-primary">
 
     <span class="navbar-brand mx-auto">FastTracker</span>
 
@@ -70,14 +81,16 @@
     </button>
 
   </nav>
+  <div class="loader"></div>
+  
 
-  <div class="container">
+  <div class="container" id="main">
 
     <div class="row">
       <div class="col-6">
         <div class="form-group">
           <label for="exampleSelect1">Route</label>
-          <select class="form-control" id="routes-list">
+          <select class="form-control" id="routes-list" disabled>
               <option disabled selected>Select...</option>
           </select>
         </div>
@@ -108,7 +121,7 @@
                 <div class="col-12 col-sm-6">
                   <span class="route-prediction-time"></span>
                 </div> 
-                <div class="col-12 col-sm-6">
+                <div class="col-12 col-sm-6 text-right">
                   <span class="float-right"><span>Route <b class="route-prediction-route"></b></span><br><span>To <span class="route-prediction-destination"></span></span></span>
                 </div> 
               </div> 
@@ -117,7 +130,7 @@
 
     <div class="routes-predictions"></div>
 
-
+    
 
 
 

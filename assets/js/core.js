@@ -9,8 +9,6 @@ console.log('%c Found a bug? Broke something? Got an error? Report it to us!', '
 console.log('%c Visit our site at https://ltcodelab.github.io/', 'color: #3fa9f5;');
 console.log('%c --------------------------------------', 'color: #3fa9f5;');
 
-console.log('%c>> CORE LOADED.', 'color: #ff3e3e;');
-
 $(document).on('click', '.navbar-toggler', function (e) {
     $(".nav-offcanvas-wrapper").addClass("nav-offcanvas-open");
     $(".nav-offcanvas").addClass("nav-offcanvas-open");
@@ -20,3 +18,5 @@ $(".nav-offcanvas-wrapper").click(function () {
     $(".nav-offcanvas-wrapper").removeClass("nav-offcanvas-open");
     $(".nav-offcanvas").removeClass("nav-offcanvas-open");
 });
+
+console.log('%c>> CORE LOADED.', 'color: #ff3e3e;');
