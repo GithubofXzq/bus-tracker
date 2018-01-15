@@ -1,4 +1,10 @@
 $(document).ready(function () {
+    db.stops.count(function (count) {
+        if(count == 0){
+            $(".saved_space").append('<div class="card bg-info text-white"> <div class="card-body"> When looking up stops on the <a href="routes.html">Bus Times</a> page, you can save them so you can quickly access them here. </div> </div>');
+            hideLoader();
+        }
+    });
     db.stops.each(function (item, cursor) {
         $(".saved_space").append('<div class="card mb-4" id="card-' + item.id + '"> <div class="card-body"> <h2 class="card-title">' + item.stopname + '</h2> <h6 class="card-subtitle mb-2 text-muted">Stop #' + item.stopid + '</h6> <a href="routes.html?stopid=' + item.stopid + '&stopname=' + item.stopname + '" class="card-link btn btn-link">View Times</a> <button class="card-link text-danger btn btn-link" data-id="' + item.id + '" data-stopid="' + item.stopid + '" data-stopname="' + item.stopname + '" onclick="deleteSave(this);"><i class="fa fa-trash" aria-hidden="true"></i></button> <button class="card-link text-info btn btn-link" data-id="' + item.id + '" data-stopid="' + item.stopid + '" data-stopname="' + item.stopname + '" onclick="editSave(this);"><i class="fa fa-pencil" aria-hidden="true"></i></button> </div> </div>');
     });

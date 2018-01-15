@@ -35,12 +35,10 @@ function saveStop() {
         console.log("SAVE STOP WORKS");
         $("#saveStopName").prop("disabled", false);
         $("#saveStopID").prop("disabled", false);
-
         if (selectedRoute) {
             $("#saveStopName").val("Route " + selectedRoute + " - " + selectedStop + " (" + selectedDir + ")");
         } else {
             $("#saveStopName").val("Stop #" + selectedStpnm);
-
         }
         $("#saveStopID").val(selectedStpnm);
         $("#saveStopDialog").modal("show");
@@ -48,34 +46,28 @@ function saveStop() {
 }
 
 function updateRecentList(pStopName, pStopID) {
+    console.log("Updating recent list", pStopName, pStopID);
     var bulkpush = [];
-    db.recent.count(function (count) {
-        if (count >= 10) {
-
-            bulkpush.push({
-                id: 1,
-                stopname: pStopName,
-                stopid: pStopID
-            });
-            db.recent.limit(10).each(function (item, cursor) {
-                if (bulkpush.length > 10) {
-                    return;
-                }
-                bulkpush.push({
-                    id: bulkpush.length + 1,
-                    stopname: item.stopname,
-                    stopid: item.stopid
-                });
-            }).then(function () {
-                db.recent.bulkPut(bulkpush).then(function () {
-                    console.log("bulk complete");
-                }).catch(Dexie.BulkError, function (e) {
-                    console.error("error", e);
-                });
-            });
-        } else {
+    bulkpush.push({
+        id: 1,
+        stopname: pStopName,
+        stopid: pStopID
+    });
+    db.recent.limit(10).each(function (item, cursor) {
+        if (bulkpush.length > 10) {
             return;
         }
+        bulkpush.push({
+            id: bulkpush.length + 1,
+            stopname: item.stopname,
+            stopid: item.stopid
+        });
+    }).then(function () {
+        db.recent.bulkPut(bulkpush).then(function () {
+            console.log("bulk complete");
+        }).catch(Dexie.BulkError, function (e) {
+            console.error("error", e);
+        });
     });
 }
 
@@ -148,12 +140,10 @@ $('#routes-list').on('change', function () {
             "rt": selectedRoute[0]
         }
     }).done(function (directionData) {
-
         console.log("---------------------------");
         console.log("DIRECTIONS SUCCESS FOR " + selectedRoute[0]);
         console.log(directionData);
         console.log("---------------------------");
-
         $('#routes-direction').prop("disabled", false);
         $.each(directionData["bustime-response"]["directions"], function (i, v) {
             $('#routes-direction').append('<option value=' + v.dir + '>' + v.dir + '</option>')
@@ -184,7 +174,6 @@ $('#routes-direction').on('change', function (e) {
         console.log("STOP DATA SUCCESS FOR ROUTE " + selectedRoute[0] + " DIR " + selectedDir);
         console.log(stopData);
         console.log("---------------------------");
-
         $('#routes-stops').prop("disabled", false);
         $.each(stopData["bustime-response"]["stops"], function (i, v) {
             $('#routes-stops').append('<option value=' + v.stpid + '>' + v.stpnm + '</option>')
@@ -192,7 +181,6 @@ $('#routes-direction').on('change', function (e) {
         hideLoader();
     });
 });
-
 
 $('#routes-stops').on('change', function (e) {
     clearInterval(pingBusTask);
@@ -216,9 +204,7 @@ $('#routes-stops').on('change', function (e) {
 function displayPredictions() {
     showLoader();
     $(".routes-predictions").fadeOut("fast", function () {
-
         $(".routes-predictions").empty();
-
         $.ajax({
             url: apiPassThruURL,
             dataType: "json",
@@ -247,9 +233,6 @@ function displayPredictions() {
                 }
                 clearInterval(pingBusTask);
             }
-
-
-
             $.each(data["bustime-response"]["prd"], function (i, v) {
                 var clone = $("#predictions-template").clone();
                 clone.removeAttr('id');
@@ -270,10 +253,7 @@ function displayPredictions() {
             });
             $(".routes-predictions").fadeIn();
             hideLoader();
-
         });
-
-
     });
 }
 
@@ -287,11 +267,7 @@ $("#stopIDSubmit").click(function () {
         setStopCard("Stop #" + selectedStpnm, "");
         $(this).fadeIn("fast");
     });
-
     updateRecentList("Stop #" + selectedStpnm, selectedStpnm);
-
-
-
     $('#routes-direction').prop("disabled", true);
     $('#routes-stops').prop("disabled", true);
     resetList($('#routes-direction'));
