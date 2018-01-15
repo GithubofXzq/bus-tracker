@@ -2,20 +2,19 @@
 <html lang="en">
 
 <head>
-  <title>FastTracker for CTA Buses</title>
-  <!-- Required meta tags -->
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-
-  <!-- Bootstrap CSS -->
-  <link rel="stylesheet" href="assets/css/bootstrap.min.css">
-
-  <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN"
+<!-- Viewports -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<!-- Desc. -->
+<title>FastTracker for CTA Buses</title>
+<meta name="description" content="Get bus times for CTA Buses using FastTracker!">
+<meta name="author" content="LTCodeLab">
+<!-- CSS -->
+<link rel="stylesheet" href="assets/css/bootstrap.min.css">
+<link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN"
     crossorigin="anonymous">
-
-  <link rel="stylesheet" href="assets/css/fasttracker.css">
- 
-  <style>
+<link rel="stylesheet" href="assets/css/fasttracker.css">
+<style>
     .project_tile {
       -webkit-transition: opacity 1s ease;
       -moz-transition: opacity 1s ease;
@@ -43,37 +42,61 @@
       opacity: 0.5;
     }
   </style>
-
+<!-- OpenGraph -->
+<meta property="og:url" content="https://ltcodelab.github.io/bus-tracker/">
+<meta property="og:type" content="website">
+<meta property="og:title" content="FastTracker for CTA Buses">
+<meta property="og:description" content="Get bus times for CTA Buses using FastTracker!">
+<meta property="og:image" content="https://ltcodelab.github.io/assets/media/og_img.png">
+<!-- Twitter -->
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:site" content="@LTCodeLab" />
+<meta name="twitter:creator" content="@Zyplos" />
+<!-- Mobile -->
+<meta name="theme-color" content="#696da3">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<!-- Favicons -->
+<link rel="apple-touch-icon" sizes="180x180" href="/bus-tracker/assets/media/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/bus-tracker/assets/media/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/bus-tracker/assets/media/favicon-16x16.png">
+<link rel="manifest" href="/bus-tracker/assets/media/manifest.json">
+<link rel="mask-icon" href="/bus-tracker/assets/media/safari-pinned-tab.svg" color="#313996">
+<link rel="shortcut icon" href="/bus-tracker/assets/media/favicon.ico">
+<meta name="msapplication-config" content="/bus-tracker/assets/media/browserconfig.xml">
 </head>
 
 <body>
 
   <div class="nav-offcanvas-wrapper">
     <div class="nav-offcanvas">
-
       <ul class="nav flex-column text-right">
         <li class="nav-item">
-          <a class="nav-link py-3" href="#">Home
+          <a class="nav-link py-3" href="index.html">Home
             <i class="fa fa-fw fa-home"></i>
           </a>
         </li>
         <li class="nav-item">
-          <a class="nav-link py-3" href="#">Stop Times
+          <a class="nav-link py-3" href="routes.html">Stop Times
             <i class="fa fa-fw fa-clock-o"></i>
           </a>
         </li>
-        <li class="nav-item">
+        <li class="nav-item d-none">
           <a class="nav-link py-3" href="#">Search for Stops
             <i class="fa fa-fw fa-search"></i>
           </a>
         </li>
         <li class="nav-item">
-          <a class="nav-link py-3" href="#">Saved Stops
+          <a class="nav-link py-3" href="saved.html">Saved Stops
             <i class="fa fa-fw fa-star"></i>
           </a>
         </li>
+        <li class="nav-item">
+          <a class="nav-link py-3" href="#recent" onclick="scrollToRecent();">Recent Stops
+            <i class="fa fa-fw fa-history"></i>
+          </a>
+        </li>
       </ul>
-
     </div>
   </div>
 
@@ -91,43 +114,50 @@
 
     <div class="row">
 
-      <div class="col-xs-12 col-md-4">
-        <img src="assets/media/icon_time.jpg" alt="Search by Stop" class="project_tile img-fluid center-block">
-        <p class="project_title">Bus Routes</p>
+      <div class="col-xs-12 col-md-6">
+        <a href="routes.html">
+          <img src="assets/media/icon_time.jpg" alt="Search by Stop" class="project_tile img-fluid center-block">
+          <p class="project_title">Bus Routes</p>
+        </a>
       </div>
-      <div class="col-xs-12 col-md-4">
+      <!--<div class="col-xs-12 col-md-4">
         <img src="assets/media/icon_search.jpg" alt="Home" class="project_tile img-fluid center-block">
-        <p class="project_title">Search for Stops</p>
-      </div>
-      <div class="col-xs-12 col-md-4">
-        <img src="assets/media/icon_star.jpg" alt="Home" class="project_tile img-fluid center-block">
-        <p class="project_title">Saved Stops</p>
-
+        <p class="project_title">Search for Stops <small>(Coming Soon)</small></p>
+      </div>-->
+      <div class="col-xs-12 col-md-6">
+        <a href="saved.html">
+          <img src="assets/media/icon_star.jpg" alt="Home" class="project_tile img-fluid center-block">
+          <p class="project_title">Saved Stops</p>
+        </a>
       </div>
 
     </div>
 
     <hr>
 
-    <h2>Recent Stops</h2>
+    <h2 id="recent_scroll">Recent Stops</h2>
 
-    
+    <div class="recent_space"></div>
+
+
+
+
 
   </div>
 
 
 
-  <script
-  src="https://code.jquery.com/jquery-3.2.1.min.js"
-  integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
-  crossorigin="anonymous"></script>
+  <script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
+    crossorigin="anonymous"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.3/umd/popper.min.js" integrity="sha384-vFJXuSJphROIrBnz7yo7oB41mKfc8JzQZiCq4NCceLEaO4IHwicKwpJf9c9IpFgh"
     crossorigin="anonymous"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/js/bootstrap.min.js" integrity="sha384-alpBpkh1PFOepccYVYDB4do5UnbKysX5WZXm3XxPqe5iKTfUKjNkCk9SaVuEZflJ"
     crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/dexie@2.0.1/dist/dexie.js"></script>
 
 
   <script src="assets/js/core.js"></script>
+  <script src="assets/js/index.js"></script>
 
 
 </body>

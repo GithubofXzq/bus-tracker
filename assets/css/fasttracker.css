@@ -1,6 +1,6 @@
-body,
-html {
-    height: 100%;
+body {
+    padding-bottom: 40px;
+    background-color: #eee;
 }
 
 .navbar-brand {
@@ -73,7 +73,7 @@ html {
 }
 
 .loader {
-    height: 4px;
+    height: 6px;
     width: 100%;
     position: relative;
     overflow: hidden;
@@ -86,7 +86,7 @@ html {
     content: "";
     left: -200px;
     width: 200px;
-    height: 4px;
+    height: 6px;
     background-color: #ff3e3e;
     animation: loading 2s linear infinite;
 }
@@ -113,7 +113,8 @@ html {
     }
 }
 
-.form-control:disabled, .form-control[readonly] {
+.custom-select:disabled,
+.custom-select[readonly] {
     background-color: #cfcfcf;
     opacity: 1;
 }

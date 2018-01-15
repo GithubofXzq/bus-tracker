@@ -19,4 +19,18 @@ $(".nav-offcanvas-wrapper").click(function () {
     $(".nav-offcanvas").removeClass("nav-offcanvas-open");
 });
 
+function showLoader() {
+    $(".loader").fadeTo(500, 1);
+}
+
+function hideLoader() {
+    $(".loader").fadeTo(500, 0);
+}
+
+var db = new Dexie("CTABusTracker");
+db.version(1).stores({
+    stops: '++id, stopname, stopid',
+    recent: 'id++, stopname, stopid'
+});
+
 console.log('%c>> CORE LOADED.', 'color: #ff3e3e;');
